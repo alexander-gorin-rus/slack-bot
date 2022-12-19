@@ -1,0 +1,18 @@
+export const TOPICS_LIST = {
+	SLACK_ACCOUNTS_NEW: 'slack-accounts-new',
+	EMPLOYEE_VACATION_CREATED: 'employee-vacation-created',
+	EMPLOYEE_VACATION_APPROVED: 'employee-vacation-approved',
+	EMPLOYEE_VACATION_FINISH: 'employee-vacation-final',
+	EMPLOYEE_VACATION_CANCEL: 'employee-vacation-cancelled',
+	EMPLOYEE_VACATION_CHANGE: 'employee-vacation-updated',
+	EMPLOYEE_DAYOFF_CREATED: 'employee-dayoff-created',
+	EMPLOYEE_DAYOFF_APPROVED: 'employee-dayoff-approved',
+	EMPLOYEE_DAYOFF_FINISH: 'employee-dayoff-final',
+	EMPLOYEE_DAYOFF_CANCEL: 'employee-dayoff-cancelled',
+	EMPLOYEE_DAYOFF_CHANGE: 'employee-dayoff-updated',
+	DAYS_CHANGE: 'days-change',
+	EMPLOYEES_NEW: 'employees-new',
+	EMPLOYEES_UPDATE: 'employees',
+	EMPLOYEES_DISMISSAL: 'employees-dismissal-finish',
+	POSITIONS: 'positions',
+};

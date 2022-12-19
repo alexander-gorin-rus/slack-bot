@@ -1,0 +1,13 @@
+[Unit]
+Description=Employee Helper Service
+After=multi-user.target
+[Service]
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=chatbot_production
+Type=simple
+WorkingDirectory=/home/ubuntu/chatbot_production
+ExecStart=node -r ts-node/register ./src/index.ts
+Restart=always
+[Install]
+WantedBy=multi-user.target

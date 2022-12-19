@@ -1,0 +1,17 @@
+.rsyncignore
+.git
+node_modules
+tmp
+.idea
+.run
+.DS_Store
+.gitignore
+.env
+Jenkinsfile
+README.md
+docker-compose.example.yml
+docker-compose.yml
+env.example
+nodemon.json
+ormconfig.json.example
+password-enc.js

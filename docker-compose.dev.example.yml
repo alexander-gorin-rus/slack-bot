@@ -1,0 +1,152 @@
+version: '3.7'
+volumes:
+  pgdb:
+
+services:
+  app:
+    image: node:bullseye
+    volumes:
+      - './:/app'
+    environment:
+      - DB_NAME=main
+      - DB_PASSWORD=password
+      - DB_USER_NAME=main
+      - DB_HOST=db
+      - SMTP_PORT=1025
+      - SMTP_HOST=mailhog
+      - MAILER_LOGIN=
+      - MAILER_PASS=
+      - MAILER_SENDER_EMAIL=test@local
+    entrypoint: ''
+    working_dir: /app
+    command: bash -c "npm i && npm run start:migrate && npm run start:dev"
+    ports:
+      - "8080:8080"
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: main
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: main
+    ports:
+      - 5432:5432
+    volumes:
+      - ./volumes/db:/var/lib/postgresql/data
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui
+
+  ## <Sentry services> ####
+  redis:
+   image: redis
+
+  postgres:
+   image: postgres
+   environment:
+     POSTGRES_USER: sentry
+     POSTGRES_PASSWORD: sentry
+     POSTGRES_DB: sentry
+   volumes:
+     - pgdb:/var/lib/postgresql/data
+
+  sentry:
+   image: sentry
+   links:
+     - redis
+     - postgres
+   ports:
+     - 9000:9000
+   environment:
+     SENTRY_SECRET_KEY: '8s^-^z&86q@9x)t#67@!nyfzidbv57x%dwap8czwx=ofu+6&)s'
+     SENTRY_POSTGRES_HOST: postgres
+     SENTRY_DB_USER: sentry
+     SENTRY_DB_PASSWORD: sentry
+     SENTRY_REDIS_HOST: redis
+
+  cron:
+   image: sentry
+   links:
+     - redis
+     - postgres
+   command: "sentry run cron"
+   environment:
+     SENTRY_SECRET_KEY: '8s^-^z&86q@9x)t#67@!nyfzidbv57x%dwap8czwx=ofu+6&)s'
+     SENTRY_POSTGRES_HOST: postgres
+     SENTRY_DB_USER: sentry
+     SENTRY_DB_PASSWORD: sentry
+  #    SENTRY_REDIS_HOST: redis
+
+  worker:
+   image: sentry
+   links:
+     - redis
+     - postgres
+   command: "sentry run worker"
+   environment:
+     SENTRY_SECRET_KEY: '8s^-^z&86q@9x)t#67@!nyfzidbv57x%dwap8czwx=ofu+6&)s'
+     SENTRY_POSTGRES_HOST: postgres
+     SENTRY_DB_USER: sentry
+     SENTRY_DB_PASSWORD: sentry
+     SENTRY_REDIS_HOST: redis
+## </Sentry services> ####
+
+## <Loki services> ####
+  loki:
+   image: grafana/loki:2.3.0
+   ports:
+     - "3100:3100"
+   command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+   image: grafana/promtail:2.3.0
+   volumes:
+     - /var/log:/var/log
+   command: -config.file=/etc/promtail/config.yml
+
+  grafana:
+   image: grafana/grafana:latest
+   ports:
+     - "3000:3000"
+## </Loki services> ####
+
+## <Kafka services> ##
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: broker
+    ports:
+    # To learn about configuring Kafka for access across networks see
+    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    ports:
+      - 3857:8080
+    restart: unless-stopped
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker:29092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    depends_on:
+      - broker
+## </Kafka services> ##

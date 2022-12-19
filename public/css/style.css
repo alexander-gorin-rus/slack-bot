@@ -1,0 +1,32 @@
+[href="/"],
+.dqTeSL,
+.kaOOSP	{
+	display: none;
+}
+
+.sc-dIsAE [data-testid="action-edit"] {
+	display: none !important;
+}
+
+.adminjs_DatePicker {
+	display: flex;
+	justify-content: center;
+}
+
+.fwRGSs .react-datepicker {
+	border: transparent !important;
+	margin-bottom: 3rem;
+	user-select: none;
+}
+
+.adminjs_SortLink {
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+	white-space: pre !important;
+}
+
+[data-property-name="status"] span {
+	display: block;
+	border-radius: 10px;
+}

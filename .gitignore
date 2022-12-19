@@ -1,0 +1,13 @@
+.idea/
+.vscode/
+node_modules/
+build/
+tmp/
+temp/
+.env
+ormconfig.json
+DS_Store
+docker-compose.yml
+package-lock.json
+uit-hr-chatbot.pem
+volumes/
